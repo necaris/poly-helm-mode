@@ -1,12 +1,12 @@
-;;; helm-mode.el --- Major mode for Helm templates -*- lexical-binding: t; -*-
+;;; poly-helm-mode.el --- Major mode for Helm templates -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2025
 
-;; Author: Your Name <your.email@example.com>
+;; Author: Rami Chowdhury <rami.chowdhury@gmail.com>
 ;; Version: 0.1.0
 ;; Package-Requires: ((emacs "25.1") (polymode "0.2.2") (yaml-mode "0.0.15"))
 ;; Keywords: languages, helm, kubernetes, yaml, templates
-;; URL: https://github.com/yourusername/helm-mode
+;; URL: https://github.com/Rami-Chowdhury/poly-helm-mode
 
 ;; This file is not part of GNU Emacs.
 
@@ -35,51 +35,51 @@
 ;; - Control structures like {{ if }}, {{ range }}, etc.
 ;;
 ;; Usage:
-;;   (require 'helm-mode)
-;;   ;; Files will automatically use helm-mode if they are:
+;;   (require 'poly-helm-mode)
+;;   ;; Files will automatically use poly-helm-mode if they are:
 ;;   ;; - Named values.yaml/yml or Chart.yaml/yml
 ;;   ;; - Located in templates/ or charts/ directories
 ;;
 ;; Testing:
 ;;   M-x eval-buffer
-;;   M-x helm-mode-test-all-patterns
+;;   M-x poly-helm-mode-test-all-patterns
 
 ;;; Code:
 
 (require 'polymode)
 (require 'yaml-mode)
 
-(defgroup helm-mode nil
+(defgroup poly-helm-mode nil
   "Major mode for editing Helm templates."
   :group 'languages
-  :prefix "helm-mode-")
+  :prefix "poly-helm-mode-")
 
-(defcustom helm-mode-template-directories '("templates" "charts")
+(defcustom poly-helm-mode-template-directories '("templates" "charts")
   "List of directory names that indicate Helm template files."
   :type '(repeat string)
-  :group 'helm-mode)
+  :group 'poly-helm-mode)
 
-(defface helm-template-delimiter-face
+(defface poly-helm-template-delimiter-face
   '((t :inherit font-lock-preprocessor-face :weight bold))
   "Face for Helm template delimiters {{ and }}."
-  :group 'helm-mode)
+  :group 'poly-helm-mode)
 
-(defface helm-template-action-face
+(defface poly-helm-template-action-face
   '((t :inherit font-lock-function-name-face))
   "Face for Helm template actions and functions."
-  :group 'helm-mode)
+  :group 'poly-helm-mode)
 
-(defface helm-template-variable-face
+(defface poly-helm-template-variable-face
   '((t :inherit font-lock-variable-name-face))
   "Face for Helm template variables."
-  :group 'helm-mode)
+  :group 'poly-helm-mode)
 
-(defface helm-template-keyword-face
+(defface poly-helm-template-keyword-face
   '((t :inherit font-lock-keyword-face))
   "Face for Helm template keywords like if, range, with."
-  :group 'helm-mode)
+  :group 'poly-helm-mode)
 
-(defvar helm-template-keywords
+(defvar poly-helm-template-keywords
   '("if" "else" "end" "range" "with" "template" "define" "block"
     "include" "required" "default" "empty" "fail" "printf" "print"
     "println" "quote" "squote" "nindent" "indent" "trim" "upper"
@@ -128,30 +128,37 @@
        ("\\b\\([a-zA-Z_][a-zA-Z0-9_]*\\)\\s-*(" 1 'helm-template-action-face)))
     (font-lock-flush)))
 
-(define-polymode helm-mode
+(define-polymode poly-helm-mode
   :hostmode 'poly-helm-hostmode
   :innermodes '(poly-helm-template-innermode)
   :keymap (let ((map (make-sparse-keymap)))
-            (define-key map (kbd "C-c C-t") 'helm-template-insert-template)
-            (define-key map (kbd "C-c C-v") 'helm-template-insert-variable)
-            (define-key map (kbd "C-c C-i") 'helm-template-insert-if)
-            (define-key map (kbd "C-c C-r") 'helm-template-insert-range)
+            (define-key map (kbd "C-c C-t") 'poly-helm-template-insert-template)
+            (define-key map (kbd "C-c C-v") 'poly-helm-template-insert-variable)
+            (define-key map (kbd "C-c C-i") 'poly-helm-template-insert-if)
+            (define-key map (kbd "C-c C-r") 'poly-helm-template-insert-range)
             map))
 
-(defun helm-template-insert-template ()
+(defun poly-helm-template-insert-template ()
   "Insert a template block."
   (interactive)
   (insert "{{ template \"\" . }}"))
 
-(defun helm-template-insert-variable ()
+(defun poly-helm-template-insert-variable ()
   "Insert a variable reference."
   (interactive)
   (insert "{{ . }}"))
 
-(defun helm-template-insert-if ()
+(defun poly-helm-template-insert-if ()
   "Insert an if block."
   (interactive)
-  (insert "{{ if  }}\n\n{{ end }}")
+  (insert "{{ if  }}\\n\\n{{ end }}")
+  (forward-line -1)
+  (end-of-line))
+
+(defun poly-helm-template-insert-range ()
+  "Insert a range block."
+  (interactive)
+  (insert "{{ range . }}\\n\\n{{ end }}")
   (forward-line -1)
   (end-of-line))
 
@@ -162,18 +169,18 @@
   (forward-line -1)
   (end-of-line))
 
-(defun helm-mode-is-helm-file-p ()
+(defun poly-helm-mode-is-helm-file-p ()
   "Return non-nil if the current buffer's file is a Helm template file."
   (let ((filename (file-name-nondirectory (or buffer-file-name "")))
         (directory-parts (file-name-directory (or buffer-file-name ""))))
     (or (member filename '("values.yaml" "values.yml" "Chart.yaml" "Chart.yml"))
         (and directory-parts
              (let ((dir-components (split-string directory-parts "/")))
-               (cl-some (lambda (dir) (member dir helm-mode-template-directories))
+               (cl-some (lambda (dir) (member dir poly-helm-mode-template-directories))
                         dir-components))))))
 
-(defun helm-mode-test-detection (&optional filepath)
-  "Test helm-mode file detection logic.
+(defun poly-helm-mode-test-detection (&optional filepath)
+  "Test poly-helm-mode file detection logic.
 If FILEPATH is provided, test that specific path.
 Otherwise, test the current buffer's file."
   (interactive)
@@ -183,20 +190,20 @@ Otherwise, test the current buffer's file."
         (progn
           ;; Temporarily set buffer-file-name for testing
           (setq buffer-file-name test-file)
-          (let ((result (helm-mode-is-helm-file-p)))
+          (let ((result (poly-helm-mode-is-helm-file-p)))
             (setq buffer-file-name original-buffer-file-name)
             (message "File: %s -> %s"
                      test-file
-                     (if result "helm-mode" "yaml-mode"))
+                     (if result "poly-helm-mode" "yaml-mode"))
             result))
       (message "No file to test (buffer has no associated file)")
       nil)))
 
-(defun helm-mode-test-all-patterns ()
-  "Test helm-mode detection with various file patterns."
+(defun poly-helm-mode-test-all-patterns ()
+  "Test poly-helm-mode detection with various file patterns."
   (interactive)
   (let ((test-cases '(
-                      ;; Should use helm-mode
+                      ;; Should use poly-helm-mode
                       "/path/to/project/values.yaml"
                       "/path/to/project/values.yml"
                       "/path/to/project/Chart.yaml"
@@ -213,23 +220,23 @@ Otherwise, test the current buffer's file."
                       "/path/to/project/data.yml"
                       "/path/to/project/other-values.yaml"
                       "/path/to/project/my-chart.yaml")))
-    (message "Testing helm-mode file detection:")
+    (message "Testing poly-helm-mode file detection:")
     (dolist (test-file test-cases)
       (let ((original-buffer-file-name buffer-file-name))
         (setq buffer-file-name test-file)
-        (let ((result (helm-mode-is-helm-file-p)))
+        (let ((result (poly-helm-mode-is-helm-file-p)))
           (setq buffer-file-name original-buffer-file-name)
           (message "  %s -> %s"
                    (file-name-nondirectory test-file)
-                   (if result "helm-mode" "yaml-mode")))))))
+                   (if result "poly-helm-mode" "yaml-mode")))))))
 
 ;;;###autoload
 (add-to-list 'auto-mode-alist
              '("\\.ya?ml\\'" . (lambda ()
-                                 (if (helm-mode-is-helm-file-p)
-                                     (helm-mode)
+                                 (if (poly-helm-mode-is-helm-file-p)
+                                     (poly-helm-mode)
                                    (yaml-mode)))))
 
-(provide 'helm-mode)
+(provide 'poly-helm-mode)
 
-;;; helm-mode.el ends here
+;;; poly-helm-mode.el ends here

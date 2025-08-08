@@ -1,3 +1,11 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -26,3 +34,5 @@ jobs:
         with:
           version: snapshot
       - run: echo "$HOME/.cask/bin" >> $GITHUB_PATH
+      - name: Run tests
+        run: make test
