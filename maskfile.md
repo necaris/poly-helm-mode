@@ -5,8 +5,6 @@
 > Install Cask if it's not already installed.
 
 ```sh
-#!/usr/bin/env bash
-
 set -e
 
 if ! command -v cask > /dev/null; then
@@ -24,8 +22,6 @@ fi
 > Run the test suite. This requires Cask to be installed.
 
 ```sh
-#!/usr/bin/env bash
-
 set -e
 
 # Use EMACS environment variable if set, otherwise default to "emacs"
