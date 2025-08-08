@@ -4,7 +4,7 @@
 (require 'poly-helm-mode)
 
 (defvar poly-helm-mode-test-template-path
-  (expand-file-name "test-template.yaml" (file-name-directory load-file-name))
+  (expand-file-name "examples/test-template.yaml" (file-name-directory load-file-name))
   "Path to the test template file.")
 
 (defun poly-helm-mode-test--get-face-at-pos (pos)
