@@ -60,7 +60,7 @@
   :group 'poly-helm-mode)
 
 (defface poly-helm-template-delimiter-face
-  '((t :inherit font-lock-preprocessor-face :weight bold))
+  '((t :inherit font-lock-bracket-face :weight bold))
   "Face for Helm template delimiters {{ and }}."
   :group 'poly-helm-mode)
 
@@ -94,18 +94,6 @@
     "mustFromJson" "toJson" "mustToJson" "toPrettyJson" "mustToPrettyJson")
   "List of Helm template keywords and functions.")
 
-(define-hostmode poly-helm-hostmode
-  :mode 'yaml-mode
-  :keep-in-mode 'host)
-
-(define-innermode poly-helm-template-innermode
-  :mode 'go-template-mode
-  :head-matcher "{{-?\\s-*"
-  :tail-matcher "\\s-*-?}}"
-  :head-mode 'host
-  :tail-mode 'host
-  :keep-in-mode 'host)
-
 (define-minor-mode go-template-mode
   "Minor mode for Go template syntax within Helm templates."
   :lighter " GoTmpl"
@@ -113,23 +101,35 @@
       (progn
         (font-lock-add-keywords
          nil
-         `(("{{-?\\|\\s-*-?}}" . 'helm-template-delimiter-face)
-           (,(regexp-opt helm-template-keywords 'words) . 'helm-template-keyword-face)
-           ("\\$[a-zA-Z_][a-zA-Z0-9_]*" . 'helm-template-variable-face)
-           ("\\.\\([a-zA-Z_][a-zA-Z0-9_]*\\)" 1 'helm-template-action-face)
-           ("\\b\\([a-zA-Z_][a-zA-Z0-9_]*\\)\\s-*(" 1 'helm-template-action-face)))
+         `(("{{-?\\|\\s-*-?}}" . 'poly-helm-template-delimiter-face)
+           (,(regexp-opt poly-helm-template-keywords 'words) . 'poly-helm-template-keyword-face)
+           ("\\$[a-zA-Z_][a-zA-Z0-9_]*" . 'poly-helm-template-variable-face)
+           ("\\.\\([a-zA-Z_][a-zA-Z0-9_]*\\)" 1 'poly-helm-template-action-face)
+           ("\\b\\([a-zA-Z_][a-zA-Z0-9_]*\\)\\s-*(" 1 'poly-helm-template-action-face)))
         (font-lock-flush))
     (font-lock-remove-keywords
      nil
-     `(("{{-?\\|\\s-*-?}}" . 'helm-template-delimiter-face)
-       (,(regexp-opt helm-template-keywords 'words) . 'helm-template-keyword-face)
-       ("\\$[a-zA-Z_][a-zA-Z0-9_]*" . 'helm-template-variable-face)
-       ("\\.\\([a-zA-Z_][a-zA-Z0-9_]*\\)" 1 'helm-template-action-face)
-       ("\\b\\([a-zA-Z_][a-zA-Z0-9_]*\\)\\s-*(" 1 'helm-template-action-face)))
+     `(("{{-?\\|\\s-*-?}}" . 'poly-helm-template-delimiter-face)
+       (,(regexp-opt poly-helm-template-keywords 'words) . 'poly-helm-template-keyword-face)
+       ("\\$[a-zA-Z_][a-zA-Z0-9_]*" . 'poly-helm-template-variable-face)
+       ("\\.\\([a-zA-Z_][a-zA-Z0-9_]*\\)" 1 'poly-helm-template-action-face)
+       ("\\b\\([a-zA-Z_][a-zA-Z0-9_]*\\)\\s-*(" 1 'poly-helm-template-action-face)))
     (font-lock-flush)))
 
+(define-hostmode poly-helm-hostmode
+  :mode 'yaml-mode
+  :keep-in-mode 'host)
+
+(define-innermode poly-helm-template-innermode
+  :mode 'go-template-mode
+  :head-matcher "{{-?*"
+  :tail-matcher "*-?}}"
+  :head-mode 'host
+  :tail-mode 'host
+  :keep-in-mode 'host)
+
 (define-polymode poly-helm-mode
-  :hostmode 'poly-helm-hostmode
+  :hostmode 'poly-yaml-hostmode
   :innermodes '(poly-helm-template-innermode)
   :keymap (let ((map (make-sparse-keymap)))
             (define-key map (kbd "C-c C-t") 'poly-helm-template-insert-template)
