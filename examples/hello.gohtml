@@ -1,0 +1,6 @@
+<h1>Go templates</h1>
+<p>The user is {{ .Name }}</p>
+<h2>Skills:</h2>
+{{ range .Skills }}
+    <p>{{ . }}</p>
+{{ end }}
