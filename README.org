@@ -35,9 +35,9 @@ The mode automatically activates for ~.yaml~ and ~.yml~ files located in directo
 
 The mode provides specialized highlighting for:
 
-- *Template delimiters*: ~{{}}~ and ~}}~ (including whitespace control ~{{-~ and ~-}}~)
+- *Template delimiters*: ={{= and =}}= (including whitespace control ={{-= and =-}}=)
 - *Keywords*: ~if~, ~else~, ~end~, ~range~, ~with~, ~template~, ~define~, etc.
-- *Variables*: ~$variable~, ~.Values.something~
+- *Variables*: ~$variable~, =.Values.something=
 - *Functions*: Built-in Helm template functions like ~include~, ~required~, ~default~
 
 ** Examples
@@ -96,10 +96,10 @@ Customize which directories trigger poly-helm-mode:
 
 ** Testing
 
-To run the tests, you will need to have Emacs and [[https://github.com/cask/cask][Cask]] installed. Then, from the root of the repository, run:
+To run the tests, you will need to have Emacs and [[https://github.com/cask/cask][Cask]] installed, as well as the [[https://github.com/jacobdeichert/mask][mask]] task runner. Then, from the root of the repo, run:
 
 #+BEGIN_SRC bash
-make test
+mask test
 #+END_SRC
 
 This will install the dependencies and run the ERT tests in batch mode, printing the results to the console.
