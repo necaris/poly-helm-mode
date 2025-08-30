@@ -179,56 +179,7 @@
                (cl-some (lambda (dir) (member dir poly-helm-mode-template-directories))
                         dir-components))))))
 
-(defun poly-helm-mode-test-detection (&optional filepath)
-  "Test poly-helm-mode file detection logic.
-If FILEPATH is provided, test that specific path.
-Otherwise, test the current buffer's file."
-  (interactive)
-  (let* ((test-file (or filepath buffer-file-name))
-         (original-buffer-file-name buffer-file-name))
-    (if test-file
-        (progn
-          ;; Temporarily set buffer-file-name for testing
-          (setq buffer-file-name test-file)
-          (let ((result (poly-helm-mode-is-helm-file-p)))
-            (setq buffer-file-name original-buffer-file-name)
-            (message "File: %s -> %s"
-                     test-file
-                     (if result "poly-helm-mode" "yaml-mode"))
-            result))
-      (message "No file to test (buffer has no associated file)")
-      nil)))
 
-(defun poly-helm-mode-test-all-patterns ()
-  "Test poly-helm-mode detection with various file patterns."
-  (interactive)
-  (let ((test-cases '(
-                      ;; Should use poly-helm-mode
-                      "/path/to/project/values.yaml"
-                      "/path/to/project/values.yml"
-                      "/path/to/project/Chart.yaml"
-                      "/path/to/project/Chart.yml"
-                      "/path/to/project/templates/deployment.yaml"
-                      "/path/to/project/templates/service.yml"
-                      "/path/to/project/charts/subchart/templates/configmap.yaml"
-                      "/path/to/project/helm-charts/templates/ingress.yml"
-                      
-                      ;; Should use yaml-mode
-                      "/path/to/project/config.yaml"
-                      "/path/to/project/docker-compose.yml"
-                      "/path/to/project/src/config.yaml"
-                      "/path/to/project/data.yml"
-                      "/path/to/project/other-values.yaml"
-                      "/path/to/project/my-chart.yaml")))
-    (message "Testing poly-helm-mode file detection:")
-    (dolist (test-file test-cases)
-      (let ((original-buffer-file-name buffer-file-name))
-        (setq buffer-file-name test-file)
-        (let ((result (poly-helm-mode-is-helm-file-p)))
-          (setq buffer-file-name original-buffer-file-name)
-          (message "  %s -> %s"
-                   (file-name-nondirectory test-file)
-                   (if result "poly-helm-mode" "yaml-mode")))))))
 
 ;;;###autoload
 (add-to-list 'auto-mode-alist
