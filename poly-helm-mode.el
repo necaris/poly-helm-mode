@@ -6,7 +6,7 @@
 ;; Version: 0.1.0
 ;; Package-Requires: ((emacs "25.1") (polymode "0.2.2") (yaml-mode "0.0.15"))
 ;; Keywords: languages, helm, kubernetes, yaml, templates
-;; URL: https://github.com/Rami-Chowdhury/poly-helm-mode
+;; URL: https://github.com/necaris/poly-helm-mode
 
 ;; This file is not part of GNU Emacs.
 
@@ -26,7 +26,7 @@
 ;;; Commentary:
 
 ;; This package provides syntax highlighting for Helm templates, which combine
-;; YAML syntax with Go template directives ({{ }} blocks).
+;; YAML syntax with Go template directives (`{{ }}' blocks).
 ;;
 ;; Helm templates are used in Kubernetes package management and contain:
 ;; - Standard YAML structure and syntax
@@ -40,9 +40,6 @@
 ;;   ;; - Named values.yaml/yml or Chart.yaml/yml
 ;;   ;; - Located in templates/ or charts/ directories
 ;;
-;; Testing:
-;;   M-x eval-buffer
-;;   M-x poly-helm-mode-test-all-patterns
 
 ;;; Code:
 
@@ -94,27 +91,16 @@
     "mustFromJson" "toJson" "mustToJson" "toPrettyJson" "mustToPrettyJson")
   "List of Helm template keywords and functions.")
 
-(define-minor-mode go-template-mode
+(define-derived-mode go-template-mode prog-mode "GoTmpl"
   "Minor mode for Go template syntax within Helm templates."
-  :lighter " GoTmpl"
-  (if go-template-mode
-      (progn
-        (font-lock-add-keywords
-         nil
-         `(("{{-?\\|\\s-*-?}}" . 'poly-helm-template-delimiter-face)
-           (,(regexp-opt poly-helm-template-keywords 'words) . 'poly-helm-template-keyword-face)
-           ("\\$[a-zA-Z_][a-zA-Z0-9_]*" . 'poly-helm-template-variable-face)
-           ("\\.\\([a-zA-Z_][a-zA-Z0-9_]*\\)" 1 'poly-helm-template-action-face)
-           ("\\b\\([a-zA-Z_][a-zA-Z0-9_]*\\)\\s-*(" 1 'poly-helm-template-action-face)))
-        (font-lock-flush))
-    (font-lock-remove-keywords
-     nil
-     `(("{{-?\\|\\s-*-?}}" . 'poly-helm-template-delimiter-face)
-       (,(regexp-opt poly-helm-template-keywords 'words) . 'poly-helm-template-keyword-face)
-       ("\\$[a-zA-Z_][a-zA-Z0-9_]*" . 'poly-helm-template-variable-face)
-       ("\\.\\([a-zA-Z_][a-zA-Z0-9_]*\\)" 1 'poly-helm-template-action-face)
-       ("\\b\\([a-zA-Z_][a-zA-Z0-9_]*\\)\\s-*(" 1 'poly-helm-template-action-face)))
-    (font-lock-flush)))
+  (font-lock-add-keywords
+   nil
+   `(("{{-?\\|\\s-*-?}}" . 'poly-helm-template-delimiter-face)
+     (,(regexp-opt poly-helm-template-keywords 'words) . 'poly-helm-template-keyword-face)
+     ("\\$[a-zA-Z_][a-zA-Z0-9_]*" . 'poly-helm-template-variable-face)
+     ("\\.\\([a-zA-Z_][a-zA-Z0-9_]*\\)" 1 'poly-helm-template-action-face)
+     ("\\b\\([a-zA-Z_][a-zA-Z0-9_]*\\)\\s-*(" 1 'poly-helm-template-action-face)))
+  (font-lock-flush))
 
 (define-hostmode poly-helm-hostmode
   :mode 'yaml-mode
@@ -122,10 +108,10 @@
 
 (define-innermode poly-helm-template-innermode
   :mode 'go-template-mode
-  :head-matcher "{{-?*"
-  :tail-matcher "*-?}}"
-  :head-mode 'host
-  :tail-mode 'host
+  :head-matcher "{{-?"
+  :tail-matcher "-?}}"
+  :head-mode 'body
+  :tail-mode 'body
   :keep-in-mode 'host)
 
 (define-polymode poly-helm-mode
@@ -162,31 +148,26 @@
   (forward-line -1)
   (end-of-line))
 
-(defun helm-template-insert-range ()
-  "Insert a range block."
-  (interactive)
-  (insert "{{ range . }}\n\n{{ end }}")
-  (forward-line -1)
-  (end-of-line))
-
 (defun poly-helm-mode-is-helm-file-p ()
   "Return non-nil if the current buffer's file is a Helm template file."
   (let ((filename (file-name-nondirectory (or buffer-file-name "")))
         (directory-parts (file-name-directory (or buffer-file-name ""))))
-    (or (member filename '("values.yaml" "values.yml" "Chart.yaml" "Chart.yml"))
-        (and directory-parts
-             (let ((dir-components (split-string directory-parts "/")))
-               (cl-some (lambda (dir) (member dir poly-helm-mode-template-directories))
-                        dir-components))))))
+    (and (or (member filename '("values.yaml" "values.yml" "Chart.yaml" "Chart.yml"))
+             (and directory-parts
+                  (let ((dir-components (split-string directory-parts "/")))
+                    (cl-some (lambda (dir) (member dir poly-helm-mode-template-directories))
+                             dir-components))))
+         t)))
 
-
+(defun poly-helm-or-yaml-mode ()
+  "Enable poly-helm-mode if it's a Helm template file, otherwise YAML mode."
+  (if (poly-helm-mode-is-helm-file-p)
+      (poly-helm-mode)
+    (yaml-mode)))
 
 ;;;###autoload
 (add-to-list 'auto-mode-alist
-             '("\\.ya?ml\\'" . (lambda ()
-                                 (if (poly-helm-mode-is-helm-file-p)
-                                     (poly-helm-mode)
-                                   (yaml-mode)))))
+             '("\\.ya?ml\\'" . poly-helm-or-yaml-mode))
 
 (provide 'poly-helm-mode)
 
