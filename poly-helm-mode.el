@@ -114,39 +114,11 @@
   :tail-mode 'body
   :keep-in-mode 'host)
 
-(define-polymode poly-helm-mode
+(define-polymode poly-helm-mode nil
+  "Mode for Helm templates, combining YAML with Go templates."
   :hostmode 'poly-yaml-hostmode
   :innermodes '(poly-helm-template-innermode)
-  :keymap (let ((map (make-sparse-keymap)))
-            (define-key map (kbd "C-c C-t") 'poly-helm-template-insert-template)
-            (define-key map (kbd "C-c C-v") 'poly-helm-template-insert-variable)
-            (define-key map (kbd "C-c C-i") 'poly-helm-template-insert-if)
-            (define-key map (kbd "C-c C-r") 'poly-helm-template-insert-range)
-            map))
-
-(defun poly-helm-template-insert-template ()
-  "Insert a template block."
-  (interactive)
-  (insert "{{ template \"\" . }}"))
-
-(defun poly-helm-template-insert-variable ()
-  "Insert a variable reference."
-  (interactive)
-  (insert "{{ . }}"))
-
-(defun poly-helm-template-insert-if ()
-  "Insert an if block."
-  (interactive)
-  (insert "{{ if  }}\\n\\n{{ end }}")
-  (forward-line -1)
-  (end-of-line))
-
-(defun poly-helm-template-insert-range ()
-  "Insert a range block."
-  (interactive)
-  (insert "{{ range . }}\\n\\n{{ end }}")
-  (forward-line -1)
-  (end-of-line))
+  (font-lock-ensure))
 
 (defun poly-helm-mode-is-helm-file-p ()
   "Return non-nil if the current buffer's file is a Helm template file."

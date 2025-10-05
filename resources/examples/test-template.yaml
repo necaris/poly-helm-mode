@@ -1,7 +1,9 @@
 apiVersion: v1
+# <-font-lock-variable-name-face
 kind: Service
 metadata:
   name: {{ .Release.Name }}-service
+#        ^ poly-helm-template-delimiter-face
 spec:
   ports:
     - port: 80
@@ -9,5 +11,8 @@ spec:
   selector:
     app: {{ .Release.Name }}
   {{ if .Values.service.create }}
+#    ^poly-helm-template-keyword-face
+#         ^poly-helm-template-variable-face
   type: {{ .Values.service.type }}
   {{ end }}
+#    ^poly-helm-template-keyword-face
