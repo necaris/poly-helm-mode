@@ -96,7 +96,7 @@
   `(
     ("{{-?\\|-?}}"
      (0 'poly-helm-template-delimiter-face))
-    (,(regexp-opt poly-helm-template-keywords 't)
+    (,(concat "\\b" (regexp-opt poly-helm-template-keywords 't) "\\b")
      (1 'poly-helm-template-keyword-face))
                                         ; ("\\$[a-zA-Z_][a-zA-Z0-9_]*"
                                         ;  (0 'poly-helm-template-variable-face))
